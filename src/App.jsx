@@ -245,7 +245,10 @@ export default function App() {
 
     const unsubAuth = onAuthStateChanged(auth, (user) => {
       if (!user) {
-        signInAnonymously(auth).catch(() => setLoadError("Could not connect — check your internet connection."));
+        signInAnonymously(auth).catch((e) => {
+          setLoadError("Could not sign in: " + (e && e.message ? e.message : String(e)));
+          setLoading(false);
+        });
         return;
       }
       unsubSnapshot = onSnapshot(
@@ -256,8 +259,8 @@ export default function App() {
           setLoading(false);
           setLoadError("");
         },
-        () => {
-          setLoadError("Could not load data — check your internet connection.");
+        (e) => {
+          setLoadError("Could not load data: " + (e && e.message ? e.message : String(e)));
           setLoading(false);
         }
       );
@@ -406,7 +409,12 @@ export default function App() {
   if (loading) {
     return (
       <Wrap>
-        <div style={{ padding: 40, textAlign: "center", color: "#6B5F45" }}>Opening the register…</div>
+        <div style={{ padding: 40, textAlign: "center", color: "#6B5F45" }}>
+          Opening the register…
+          {loadError ? (
+            <div style={{ marginTop: 16, color: "#8B2E3C", fontSize: 13, whiteSpace: "pre-wrap" }}>{loadError}</div>
+          ) : null}
+        </div>
       </Wrap>
     );
   }
